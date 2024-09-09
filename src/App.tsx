@@ -1,10 +1,15 @@
 import Table from './components/Table'
+import { QueryClient, QueryClientProvider } from 'react-query'
+
+const queryClient = new QueryClient()
 
 const App = () => {
   return (
-    <div>
-      <Table />
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <div>
+        <Table />
+      </div>
+    </QueryClientProvider>
   )
 }
 

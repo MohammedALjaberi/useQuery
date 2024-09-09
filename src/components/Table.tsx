@@ -1,4 +1,4 @@
-import { useState, useEffect, FC } from 'react'
+import { useQuery } from 'react-query'
 import axios from 'axios'
 
 interface Todo {
@@ -8,21 +8,16 @@ interface Todo {
   completed: boolean
 }
 
-const Table: FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([])
+const fetchTodos = async (): Promise<Todo[]> => {
+  const { data } = await axios.get<Todo[]>('https://jsonplaceholder.typicode.com/todos')
+  return data
+}
 
-  useEffect(() => {
-    const getTodos = async () => {
-      try {
-        const response = await axios.get<Todo[]>('https://jsonplaceholder.typicode.com/todos')
-        setTodos(response.data)
-      } catch (error) {
-        console.error('Error fetching todos:', error)
-      }
-    }
+function Table(): JSX.Element {
+  const { data: todos, isLoading, error } = useQuery<Todo[], Error>('todos', fetchTodos)
 
-    getTodos()
-  }, [])
+  if (isLoading) return <div>Loading...</div>
+  if (error) return <div>An error occurred: {error.message}</div>
 
   return (
     <div className="font-sans overflow-x-auto">
@@ -43,9 +38,8 @@ const Table: FC = () => {
             </th>
           </tr>
         </thead>
-
         <tbody className="bg-white divide-y divide-gray-200 whitespace-nowrap">
-          {todos.map((todo) => (
+          {todos?.map((todo) => (
             <tr key={todo.id}>
               <td className="px-4 py-4 text-xl text-gray-800">{todo.userId}</td>
               <td className="px-4 py-4 text-xl text-gray-800">{todo.id}</td>
